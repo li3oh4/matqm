@@ -91,7 +91,7 @@ class HamSP(object):
 
     """
 
-    def __init__(self, hop, dof={}):
+    def __init__(self, hop, dof=None):
         rdim, ncom, hop2 = 0, 0, {}
         for r, t in hop.items():
             if np.isscalar(r):
@@ -114,11 +114,11 @@ class HamSP(object):
                 hop2[this_r] = sps.lil_matrix(t)
                 if abs(np.array(this_r)).sum() == 0:
                     hop2[this_r] = hop2[this_r] * 0.5
-        if not dof:
+        if dof is None:
             dof = DoF({(): range(ncom)})
         elif not isinstance(dof, DoF):
             dof = DoF(dof)
-        if ncom != dof.ncom:
+        if ncom != np.prod(dof.num):
             raise Exception('dof size is not consistent with hop matrix')
         self._hop = hop2
         self.rdim = rdim
@@ -126,7 +126,7 @@ class HamSP(object):
 
     def __repr__(self):
         return ('<HamSP: {} spatial dimensions, {} components>'
-                .format(self.rdim, self.dof.ncom))
+                .format(self.rdim, np.prod(self.dof.num)))
 
     def __str__(self):
         return ('dof types: {}\nhop vectors: {}'
